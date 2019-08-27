@@ -3,8 +3,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
-import WelcomeMenu from './components/WelcomeMenu';
-import SignIn from './components/SignIn';
 
 class App extends Component {
   // initialize our state
@@ -17,6 +15,8 @@ class App extends Component {
     idToUpdate: null,
     objectToUpdate: null,
     form: "Menu",
+    username: "",
+    password: "",
   };
 
   // when component mounts, first thing it does is fetch all existing data in our db
@@ -67,44 +67,28 @@ class App extends Component {
     });
   };
 
-  // our delete method that uses our backend api
-  // to remove existing database information
-  deleteFromDB = (idTodelete) => {
-    parseInt(idTodelete);
-    let objIdToDelete = null;
-    this.state.data.forEach((dat) => {
-      if (dat.id === idTodelete) {
-        objIdToDelete = dat._id;
-      }
-    });
-
-    axios.delete('http://localhost:3001/api/deleteData', {
-      data: {
-        id: objIdToDelete,
-      },
-    });
-  };
-
-  // our update method that uses our backend api
-  // to overwrite existing data base information
-  updateDB = (idToUpdate, updateToApply) => {
-    let objIdToUpdate = null;
-    parseInt(idToUpdate);
-    this.state.data.forEach((dat) => {
-      if (dat.id === idToUpdate) {
-        objIdToUpdate = dat._id;
-      }
-    });
-
-    axios.post('http://localhost:3001/api/updateData', {
-      id: objIdToUpdate,
-      update: { message: updateToApply },
-    });
-  };
-
   changeForm(name)
   {
     this.setState({form: name});
+  }
+
+  usernameChange = event =>
+  {
+    this.setState({username: event.target.value});
+  }
+
+  passwordChange = event =>
+  {
+    this.setState({password: event.target.value});
+  }
+
+  login(username, password)
+  {
+    this.getDataFromDb();
+    console.log(this.state.data);
+
+    axios.post('http://localhost:3001/login', {id: username, pass: password})
+    .then((response)=> {console.log(response.data)})
   }
 
   // here is our UI
@@ -117,12 +101,12 @@ class App extends Component {
         currentWelcome=
         <div>
           <div>
-              <button onClick={() => this.changeForm("SignIn")} class="button">
+              <button onClick={() => this.changeForm("SignIn")} className="button">
                   Sign In
               </button>
           </div>
           <div>
-              <button class="button">
+              <button className="button">
                   Sign Up
               </button>
           </div>
@@ -134,30 +118,30 @@ class App extends Component {
         <div>
           <div>
             <div>
-              <label class="inputDescriber" for="userName">Username</label>
-              <input class="inputBox" type="text" placeholder="Enter Username" name="userName" required/>
+              <label className="inputDescriber">Username</label>
+              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
-              <label class="inputDescriber" for="password">Password</label>
-              <input class="inputBox" type="password" placeholder="Enter Password" name="password" required/>
+              <label className="inputDescriber">Password</label>
+              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
             </div>
             <div>
-              <div class="optionalForget">
+              <div className="optionalForget">
                 <label>
-                  <input type="checkbox" name="remember"/> Remember Me
+                  <input type="checkbox"/> Remember Me
                 </label>
               </div>
               <div>
-                <button class="smallButton" type="submit">Sign In</button>
+                <button className="smallButton" type="submit" onClick={() => this.login(this.state.username, this.state.password)}>Sign In</button>
               </div>
             </div>
           </div>
           <div>
             <div>
-              <button class="smallButton" onClick={() => this.changeForm("Menu")}>Cancel</button>
+              <button className="smallButton" onClick={() => this.changeForm("Menu")}>Cancel</button>
             </div>
-            <div class="optionalForget">
-              <span>Forgot <a href="https://www.google.com/search?q=how+to+remember+your+password&oq=how+to+remember+your+password&aqs=chrome.0.0l6.4376j1j8&sourceid=chrome&ie=UTF-8" target="_blank">password?</a></span>
+            <div className="optionalForget">
+              <span>Forgot <a href="http://letmegooglethat.com/?q=how+to+remember+your+password" target="_blank" rel="noopener noreferrer">password?</a></span>
             </div>
           </div>
         </div>;
@@ -165,8 +149,8 @@ class App extends Component {
     const { data } = this.state;
     document.body.style = 'background: #38414a';
     return (
-      <div class="container">
-        <div class="header">
+      <div className="container">
+        <div className="header">
           Welcome!
         </div>
         {currentWelcome}
