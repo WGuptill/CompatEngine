@@ -18,6 +18,9 @@ class App extends Component {
     username: "",
     password: "",
     validation: "",
+    usernamepointer: null,
+    passwordpointer: null,
+    validationpointer: null,
   };
 
   // when component mounts, first thing it does is fetch all existing data in our db
@@ -76,16 +79,19 @@ class App extends Component {
   usernameChange = event =>
   {
     this.setState({username: event.target.value,});
+    this.setState({usernamepointer: event.target,});
   }
 
   passwordChange = event =>
   {
     this.setState({password: event.target.value,});
+    this.setState({passwordpointer: event.target,});
   }
 
   confirmationChange = event =>
   {
-    this.setState({passconfirm: event.target.value,});
+    this.setState({validation: event.target.value,});
+    this.setState({validationpointer: event.target,});
   }
 
   infoCheck()
@@ -96,25 +102,30 @@ class App extends Component {
     if(username.length<4)
     {
       this.setState({form: "SignUpShortUsername"});
+      this.clearSignInUpFields();
     }
     else if(password.length<4)
     {
       if(validation.length<4)
       {
         this.setState({form: "SignUpShortPassAndValid"});
+        this.clearSignInUpFields();
       }
       else
       {
       this.setState({form: "SignUpShortPassword"});
+      this.clearSignInUpFields();
       }
     }
     else if(validation.length<4)
     {
       this.setState({form: "SignUpShortValidation"});
+      this.clearSignInUpFields();
     }
     else if(password !== validation)
     {
       this.setState({form: "SignUpNoPassValidMatch"});
+      this.clearSignInUpFields();
     }
     else
     {
@@ -132,17 +143,17 @@ class App extends Component {
 
       if(serverResponse === "No User")
       {
-        this.clearSignInFields();
+        this.clearSignInUpFields();
         this.setState({form: "SignInNoUser"});
       }
       else if(serverResponse === "Wrong Password")
       {
-        this.clearSignInFields();
+        this.clearSignInUpFields();
         this.setState({form: "SignInWrongPassword"});
       }
       else if(serverResponse === "Sign In")
       {
-        this.clearSignInFields();
+        this.clearSignInUpFields();
         this.setState({form: "HomePage"});
       }
     });
@@ -159,16 +170,33 @@ class App extends Component {
       if(serverResponse === "User Exists")
       {
         this.setState({form: "SignUpUserExists"});
+        this.clearSignInUpFields();
       }
       else if(serverResponse === "User Created")
       {
         this.setState({form: "SignUpUserCreated"});
+        this.clearSignInUpFields();
       }
     });
   }
 
-  clearSignInFields()
+  clearSignInUpFields()
   {
+    var userpointer = this.state.usernamepointer;
+    var passpointer = this.state.passwordpointer;
+    var validpointer = this.state.validationpointer;
+    if(userpointer !== null)
+    {
+    userpointer.value = "";
+    }
+    if(passpointer !== null)
+    {
+    passpointer.value = "";
+    }
+    if(validpointer !== null)
+    {
+    validpointer.value = "";
+    }
   }
 
   // here is our UI
@@ -199,12 +227,16 @@ class App extends Component {
         <div>
           <div>
             <div>
-              <label className="inputDescriber">Username</label>
-              <input id="SignInUsername" className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <label className="inputDescriber">Password</label>
-              <input id="SignInPassword" className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            </div>
+            <div>
+            <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
             </div>
             <div>
               <div className="optionalForget">
@@ -233,15 +265,19 @@ class App extends Component {
         <div>
           <div>
             <div>
-            <label className="errorMessage">That User Doesn't Exist!</label>
+              <label className="errorMessage">That User Doesn't Exist!</label>
             </div>
             <div>
-              <label className="inputDescriber">Username</label>
-              <input id="SignInNoUserUsername" className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <label className="inputDescriber">Password</label>
-              <input id="SignInNoUserPassword" className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+              <input className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            </div>
+            <div>
+            <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
             </div>
             <div>
               <div className="optionalForget">
@@ -270,12 +306,19 @@ class App extends Component {
         <div>
           <div>
             <div>
-              <label className="inputDescriber">Username</label>
+              <label className="errorMessage">Incorrect Password. Try Again.</label>
+            </div>
+            <div>
+            <label className="inputDescriber">Username</label>
+            </div>
+            <div>
               <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
-              <label className="inputDescriber">Password</label>
-              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+            <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="badInput" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
             </div>
             <div>
               <div className="optionalForget">
@@ -305,15 +348,21 @@ class App extends Component {
           <div>
             <div>
               <label className="inputDescriber">Username</label>
+            </div>
+            <div>
               <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
               <label className="inputDescriber">Password</label>
+            </div>
+            <div>
               <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
             </div>
             <div>
-              <label className="inputDescriber">Password</label>
-              <input id="ConfirmPass" className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+              <label className="inputDescriber">Confirm Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
             </div>
             <div>
               <div>
@@ -330,31 +379,255 @@ class App extends Component {
       }
       else if(this.state.form === "SignUpShortUsername")
       {
-
+        currentWelcome= 
+        <div>
+          <div>
+            <div>
+              <label className="errorMessage">Ensure username and password are four characters or longer.</label>
+            </div>
+            <div>
+              <label className="inputDescriber">Username</label>
+            </div>
+            <div>
+              <input className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Confirm Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+            </div>
+            <div>
+              <div>
+                <button className="smallButton" type="submit" onClick={() => this.infoCheck()}>Sign Up</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              <button className="smallButton" onClick={() => this.changeForm("Menu")}>Cancel</button>
+            </div>
+          </div>
+        </div>;
       }
       else if(this.state.form === "SignUpShortPassword")
       {
-
+        currentWelcome= 
+        <div>
+          <div>
+            <div>
+              <label className="errorMessage">Ensure username and password are four characters or longer.</label>
+            </div>
+            <div>
+              <label className="inputDescriber">Username</label>
+            </div>
+            <div>
+              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="badInput" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Confirm Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+            </div>
+            <div>
+              <div>
+                <button className="smallButton" type="submit" onClick={() => this.infoCheck()}>Sign Up</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              <button className="smallButton" onClick={() => this.changeForm("Menu")}>Cancel</button>
+            </div>
+          </div>
+        </div>;
       }
       else if(this.state.form === "SignUpShortPassAndValid")
       {
-
+        currentWelcome= 
+        <div>
+          <div>
+            <div>
+              <label className="inputDescriber">Username</label>
+            </div>
+            <div>
+              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="badInput" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Confirm Password</label>
+            </div>
+            <div>
+              <input className="badInput" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+            </div>
+            <div>
+              <div>
+                <button className="smallButton" type="submit" onClick={() => this.infoCheck()}>Sign Up</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              <button className="smallButton" onClick={() => this.changeForm("Menu")}>Cancel</button>
+            </div>
+          </div>
+        </div>;
       }
       else if(this.state.form === "SignUpShortValidation")
       {
-
+        currentWelcome= 
+        <div>
+          <div>
+            <div>
+              <label className="errorMessage">Ensure username and password are four characters or longer.</label>
+            </div>
+            <div>
+              <label className="inputDescriber">Username</label>
+            </div>
+            <div>
+              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Confirm Password</label>
+            </div>
+            <div>
+              <input className="badInput" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+            </div>
+            <div>
+              <div>
+                <button className="smallButton" type="submit" onClick={() => this.infoCheck()}>Sign Up</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              <button className="smallButton" onClick={() => this.changeForm("Menu")}>Cancel</button>
+            </div>
+          </div>
+        </div>;
       }
       else if(this.state.form === "SignUpNoPassValidMatch")
       {
-
+        currentWelcome= 
+        <div>
+          <div>
+            <div>
+              <label className="errorMessage">Passwords don't match</label>
+            </div>
+            <div>
+              <label className="inputDescriber">Username</label>
+            </div>
+            <div>
+              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="badInput" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Confirm Password</label>
+            </div>
+            <div>
+              <input className="badInput" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+            </div>
+            <div>
+              <div>
+                <button className="smallButton" type="submit" onClick={() => this.infoCheck()}>Sign Up</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              <button className="smallButton" onClick={() => this.changeForm("Menu")}>Cancel</button>
+            </div>
+          </div>
+        </div>;
       }
       else if(this.state.form === "SignUpUserExists")
       {
-
+        currentWelcome= 
+        <div>
+          <div>
+            <div>
+              <label className="errorMessage">That username already exists!</label>
+            </div>
+            <div>
+              <label className="inputDescriber">Username</label>
+            </div>
+            <div>
+              <input className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+            </div>
+            <div>
+              <label className="inputDescriber">Confirm Password</label>
+            </div>
+            <div>
+              <input className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+            </div>
+            <div>
+              <div>
+                <button className="smallButton" type="submit" onClick={() => this.infoCheck()}>Sign Up</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              <button className="smallButton" onClick={() => this.changeForm("Menu")}>Cancel</button>
+            </div>
+          </div>
+        </div>;
       }
       else if(this.state.form === "SignUpUserCreated")
       {
-
+        currentWelcome= 
+        <div>
+          <div>
+            <div>
+              <label className="signupSuccess">Account Successfully Created!</label>
+            </div>
+            <div>
+              <button className="button" onClick={() => this.changeForm("SignIn")}>Sign In</button>
+            </div>
+          </div>
+        </div>;
+      }
+      else if(this.state.form === "HomePage")
+      {
+        currentWelcome=
+        <div>
+          <h1>Welcome, {this.state.username}</h1>
+        </div>
       }
     const { data } = this.state;
     document.body.style = 'background: #38414a';

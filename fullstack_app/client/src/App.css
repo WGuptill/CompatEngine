@@ -10,15 +10,15 @@
 }
 
 .inputBox {
-    margin-top: 20px;
-    margin-left: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     width: 150px;
     height: 25px;
 }
 
 .badInput {
-    margin-top: 20px;
-    margin-left: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     width: 150px;
     height: 25px;
     color: red;
@@ -28,6 +28,12 @@
     font-weight: bold;
     font-size: 16px;
     color: red;
+}
+
+.signupSuccess {
+    font-weight: bold;
+    font-size: 3em;
+    color: #ffffff;
 }
 
 a {
