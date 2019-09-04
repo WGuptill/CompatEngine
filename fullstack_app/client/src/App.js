@@ -169,7 +169,6 @@ class App extends Component {
 
   clearSignInFields()
   {
-    document.getElementById("SignIn").
   }
 
   // here is our UI
