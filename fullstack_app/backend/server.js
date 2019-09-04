@@ -4,6 +4,7 @@ var cors = require('cors');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const Data = require('./data');
+const MongoClient = require('mongodb').MongoClient;
 
 const API_PORT = 3001;
 const app = express();
@@ -11,13 +12,14 @@ app.use(cors());
 const router = express.Router();
 
 // this is our MongoDB database
-const dbRoute =
-'mongodb+srv://shootbuildthink:S3cur3Password@compatibilitycluster-qvcnj.mongodb.net/test?retryWrites=true&w=majority';
+const dbRouteUsers =
+'mongodb+srv://shootbuildthink:S3cur3Password@compatibilitycluster-qvcnj.mongodb.net/UserInformation?retryWrites=true&w=majority';
 
 // connects our back end code with the database
-mongoose.connect(dbRoute, { useNewUrlParser: true });
+mongoose.connect(dbRouteUsers, { useNewUrlParser: true });
 
 let db = mongoose.connection;
+const schema = new mongoose.Schema({username: 'string', password: 'string'}, { versionKey: false }, );
 
 db.once('open', () => console.log('connected to the database'));
 
@@ -63,17 +65,69 @@ router.post('/putData', (request, response) => {
 // append /api for our http requests
 app.use('/api', router);
 
-app.post('/login', function(request, response) {
-  newUser = new User(request.body.id, request.body.pass);
-  response.send(newUser.username + " " + newUser.password);
+app.post('/signup', function(request, response) {
+    var username;
+    var User = db.model('User', schema);
+
+    MongoClient.connect(dbRouteUsers, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("UserInformation");
+      dbo.collection("users").findOne({username: request.body.username}, function(err, result) {
+        if (err) throw err;
+        if(result !== null)
+        {
+        username = result.username;
+        }
+        db.close();
+        if(username !== request.body.username)
+        {
+          User.create({username: request.body.username, password: request.body.password});
+          response.send("User Created")
+        }
+        else
+        {
+          response.send("User Exists")
+        }
+      })
+    })
 })
 
-router.get('/getUsers', (request, response) => {
-  Data.find((err, data) => {
-    if (err) return "Bad Beans";
-    else return "Beans";
-  });
-});
+app.post('/signin', function(request, response) {
+  var username;
+  var password;
+  MongoClient.connect(dbRouteUsers, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("UserInformation");
+    dbo.collection("users").findOne({username: request.body.username}, function(err, result) {
+      if (err) throw err;
+      if(result !== null)
+      {
+      username = result.username;
+      password = result.password;
+      }
+      db.close();
+      if(username !== request.body.username)
+      {
+        response.send("No User");
+      }
+      else if(password === request.body.password)
+      {
+        response.send("Sign In");
+      }
+      else
+      {
+        response.send("Wrong Password");
+      }
+    })
+  })
+})
+
+class User {
+  constructor(username, password) {
+    this.username = username;
+    this.password = password;
+  }
+}
 
 // launch our backend into a port
 app.listen(API_PORT, () => console.log(`LISTENING ON PORT ${API_PORT}`));
