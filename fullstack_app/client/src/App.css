@@ -3,6 +3,23 @@
     text-align: center;
 }
 
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    float: left;
+    font-size: 20px;
+    color: #ffffff;
+    margin: 10px;
+    display: block;
+    padding: 3px;
+    background-color: red;
+    text-align: center;
+}
+
 .inputDescriber {
     font-weight: bold;
     font-size: 24px;
@@ -34,6 +51,12 @@
     font-weight: bold;
     font-size: 3em;
     color: #ffffff;
+}
+
+.navigationBar {
+    background-color: #1b1e21;
+    height: 50px;
+    width: 100%;
 }
 
 a {

@@ -15,60 +15,13 @@ class App extends Component {
     idToUpdate: null,
     objectToUpdate: null,
     form: "Menu",
+    header: "Welcome",
     username: "",
     password: "",
     validation: "",
     usernamepointer: null,
     passwordpointer: null,
     validationpointer: null,
-  };
-
-  // when component mounts, first thing it does is fetch all existing data in our db
-  // then we incorporate a polling logic so that we can easily see if our db has
-  // changed and implement those changes into our UI
-  /*componentDidMount() {
-    this.getDataFromDb();
-    if (!this.state.intervalIsSet) {
-      let interval = setInterval(this.getDataFromDb, 1000);
-      this.setState({ intervalIsSet: interval });
-    }
-  }*/
-
-  // never let a process live forever
-  // always kill a process everytime we are done using it
-  componentWillUnmount() {
-    if (this.state.intervalIsSet) {
-      clearInterval(this.state.intervalIsSet);
-      this.setState({ intervalIsSet: null });
-    }
-  }
-
-  // just a note, here, in the front end, we use the id key of our data object
-  // in order to identify which we want to Update or delete.
-  // for our back end, we use the object id assigned by MongoDB to modify
-  // data base entries
-
-  // our first get method that uses our backend api to
-  // fetch data from our data base
-  getDataFromDb = () => {
-    fetch('http://localhost:3001/api/getData')
-      .then((data) => data.json())
-      .then((res) => this.setState({ data: res.data }));
-  };
-
-  // our put method that uses our backend api
-  // to create new query into our data base
-  putDataToDB = (message) => {
-    let currentIds = this.state.data.map((data) => data.id);
-    let idToBeAdded = 0;
-    while (currentIds.includes(idToBeAdded)) {
-      ++idToBeAdded;
-    }
-
-    axios.post('http://localhost:3001/api/putData', {
-      id: idToBeAdded,
-      message: message,
-    });
   };
 
   changeForm(name)
@@ -78,20 +31,17 @@ class App extends Component {
 
   usernameChange = event =>
   {
-    this.setState({username: event.target.value,});
-    this.setState({usernamepointer: event.target,});
+    this.setState({username: event.target.value, usernamepointer: event.target});
   }
 
   passwordChange = event =>
   {
-    this.setState({password: event.target.value,});
-    this.setState({passwordpointer: event.target,});
+    this.setState({password: event.target.value, passwordpointer: event.target});
   }
 
   confirmationChange = event =>
   {
-    this.setState({validation: event.target.value,});
-    this.setState({validationpointer: event.target,});
+    this.setState({validation: event.target.value, validationpointer: event.target});
   }
 
   infoCheck()
@@ -155,6 +105,7 @@ class App extends Component {
       {
         this.clearSignInUpFields();
         this.setState({form: "HomePage"});
+        this.setState({header: "InApp"})
       }
     });
   }
@@ -187,15 +138,28 @@ class App extends Component {
     var validpointer = this.state.validationpointer;
     if(userpointer !== null)
     {
-    userpointer.value = "";
+      userpointer.value = "";
     }
     if(passpointer !== null)
     {
-    passpointer.value = "";
+      passpointer.value = "";
     }
     if(validpointer !== null)
     {
-    validpointer.value = "";
+      validpointer.value = "";
+    }
+  }
+
+  signupEnter = (e) => {
+    if(e.key === 'Enter') {
+      this.infoCheck();
+    }
+  }
+
+  signinEnter = (e) =>
+  {
+    if(e.key === 'Enter') {
+      this.signin(this.state.username, this.state.password);
     }
   }
 
@@ -203,11 +167,12 @@ class App extends Component {
   // it is easy to understand their functions when you
   // see them render into our screen
   render() {
-    var currentWelcome;
+    var currentPageContent;
+    var currentHeader;
 
     if(this.state.form === "Menu")
       {
-        currentWelcome=
+        currentPageContent=
         <div>
           <div>
               <button onClick={() => this.changeForm("SignIn")} className="button">
@@ -223,20 +188,20 @@ class App extends Component {
       }
     else if(this.state.form === "SignIn")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
             <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
             <label className="inputDescriber">Password</label>
             </div>
             <div>
-              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+              <input className="inputBox" type="password" placeholder="Enter Password" onKeyDown={this.signinEnter} onChange={this.passwordChange} required/>
             </div>
             <div>
               <div className="optionalForget">
@@ -261,7 +226,7 @@ class App extends Component {
       }
       else if(this.state.form === "SignInNoUser")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
@@ -271,13 +236,13 @@ class App extends Component {
             <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
             <label className="inputDescriber">Password</label>
             </div>
             <div>
-              <input className="inputBox" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+              <input className="inputBox" type="password" placeholder="Enter Password" onKeyDown={this.signinEnter} onChange={this.passwordChange} required/>
             </div>
             <div>
               <div className="optionalForget">
@@ -302,7 +267,7 @@ class App extends Component {
       }
       else if(this.state.form === "SignInWrongPassword")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
@@ -312,13 +277,13 @@ class App extends Component {
             <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
             <label className="inputDescriber">Password</label>
             </div>
             <div>
-              <input className="badInput" type="password" placeholder="Enter Password" onChange={this.passwordChange} required/>
+              <input className="badInput" type="password" placeholder="Enter Password" onKeyDown={this.signinEnter} onChange={this.passwordChange} required/>
             </div>
             <div>
               <div className="optionalForget">
@@ -343,14 +308,14 @@ class App extends Component {
       }
       else if(this.state.form === "SignUp")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
               <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
               <label className="inputDescriber">Password</label>
@@ -362,7 +327,7 @@ class App extends Component {
               <label className="inputDescriber">Confirm Password</label>
             </div>
             <div>
-              <input className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+              <input className="inputBox" type="password" placeholder="Confirm Password" onKeyDown={this.signupEnter} onChange={this.confirmationChange} required/>
             </div>
             <div>
               <div>
@@ -379,7 +344,7 @@ class App extends Component {
       }
       else if(this.state.form === "SignUpShortUsername")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
@@ -389,7 +354,7 @@ class App extends Component {
               <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
               <label className="inputDescriber">Password</label>
@@ -401,7 +366,7 @@ class App extends Component {
               <label className="inputDescriber">Confirm Password</label>
             </div>
             <div>
-              <input className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+              <input className="inputBox" type="password" placeholder="Confirm Password" onKeyDown={this.signupEnter} onChange={this.confirmationChange} required/>
             </div>
             <div>
               <div>
@@ -418,7 +383,7 @@ class App extends Component {
       }
       else if(this.state.form === "SignUpShortPassword")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
@@ -428,7 +393,7 @@ class App extends Component {
               <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
               <label className="inputDescriber">Password</label>
@@ -440,7 +405,7 @@ class App extends Component {
               <label className="inputDescriber">Confirm Password</label>
             </div>
             <div>
-              <input className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+              <input className="inputBox" type="password" placeholder="Confirm Password" onKeyDown={this.signupEnter} onChange={this.confirmationChange} required/>
             </div>
             <div>
               <div>
@@ -457,14 +422,14 @@ class App extends Component {
       }
       else if(this.state.form === "SignUpShortPassAndValid")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
               <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
               <label className="inputDescriber">Password</label>
@@ -476,7 +441,7 @@ class App extends Component {
               <label className="inputDescriber">Confirm Password</label>
             </div>
             <div>
-              <input className="badInput" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+              <input className="badInput" type="password" placeholder="Confirm Password" onKeyDown={this.signupEnter} onChange={this.confirmationChange} required/>
             </div>
             <div>
               <div>
@@ -493,7 +458,7 @@ class App extends Component {
       }
       else if(this.state.form === "SignUpShortValidation")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
@@ -503,7 +468,7 @@ class App extends Component {
               <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
               <label className="inputDescriber">Password</label>
@@ -515,7 +480,7 @@ class App extends Component {
               <label className="inputDescriber">Confirm Password</label>
             </div>
             <div>
-              <input className="badInput" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+              <input className="badInput" type="password" placeholder="Confirm Password" onKeyDown={this.signupEnter} onChange={this.confirmationChange} required/>
             </div>
             <div>
               <div>
@@ -532,7 +497,7 @@ class App extends Component {
       }
       else if(this.state.form === "SignUpNoPassValidMatch")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
@@ -542,7 +507,7 @@ class App extends Component {
               <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="inputBox" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
               <label className="inputDescriber">Password</label>
@@ -554,7 +519,7 @@ class App extends Component {
               <label className="inputDescriber">Confirm Password</label>
             </div>
             <div>
-              <input className="badInput" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+              <input className="badInput" type="password" placeholder="Confirm Password" onKeyDown={this.signupEnter} onChange={this.confirmationChange} required/>
             </div>
             <div>
               <div>
@@ -571,7 +536,7 @@ class App extends Component {
       }
       else if(this.state.form === "SignUpUserExists")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
@@ -581,7 +546,7 @@ class App extends Component {
               <label className="inputDescriber">Username</label>
             </div>
             <div>
-              <input className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
+              <input autoFocus className="badInput" type="text" placeholder="Enter Username" onChange={this.usernameChange} required/>
             </div>
             <div>
               <label className="inputDescriber">Password</label>
@@ -593,7 +558,7 @@ class App extends Component {
               <label className="inputDescriber">Confirm Password</label>
             </div>
             <div>
-              <input className="inputBox" type="password" placeholder="Confirm Password" onChange={this.confirmationChange} required/>
+              <input className="inputBox" type="password" placeholder="Confirm Password" onKeyDown={this.signupEnter} onChange={this.confirmationChange} required/>
             </div>
             <div>
               <div>
@@ -610,7 +575,7 @@ class App extends Component {
       }
       else if(this.state.form === "SignUpUserCreated")
       {
-        currentWelcome= 
+        currentPageContent= 
         <div>
           <div>
             <div>
@@ -624,19 +589,46 @@ class App extends Component {
       }
       else if(this.state.form === "HomePage")
       {
-        currentWelcome=
+        currentPageContent=
         <div>
           <h1>Welcome, {this.state.username}</h1>
         </div>
       }
-    const { data } = this.state;
+
+      if(this.state.header === "Welcome")
+      {
+        currentHeader=
+        <div>
+          <div className="header">
+            Welcome!
+          </div>
+        </div>;
+      }
+      else if(this.state.header === "InApp")
+      {
+        currentHeader=
+        <div className="navigationBar">
+          <div>
+            <ul>
+              <li>Home</li>
+              <li>Browse Mods</li>
+              <li>Mod Builds</li>
+              <li>Profile</li>
+              <li>Help</li>
+              <li>Forum</li>
+            </ul>
+          </div>
+        </div>
+      }
     document.body.style = 'background: #38414a';
     return (
-      <div className="container">
-        <div className="header">
-          Welcome!
+      <div>
+        <div className="container">
+          {currentHeader}
         </div>
-        {currentWelcome}
+        <div className="container">
+          {currentPageContent}
+        </div>
       </div>
     );
   }
